@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if user %}
+    <p>Здравствуйте, {{ user.username }}.
+    {% if user.is_staff %}
+        <a href="{% url 'admin:index' %}">Войти на страницу администрирования.</a><p/>
+    {% else %}
+        <a href="{% url 'shop:cart' %}">Посмотреть корзину.</a><p/>
+    {% endif %}
+{% else %}
+
+<a href="{% url 'shop:register' %}">Зарегестрироваться.</a>
+
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+{% endif %}
+
+<br><br>
+<h3> Категории товаров:</h3>
+<ul>
+{% for cat in data %}
+        <li><img src="{{ cat.image }}"/><a href="{% url 'shop:category' cat.id %}">{{ cat.name }}</a></li>
+{% endfor %}
+</ul>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<p><a href="{% url 'shop:index' %}">Вернуться на главную страницу.</a></p>
+<br>
+<h3>Здравствуйте {{ name }}</h3>
+<p>В вашей корзине:</p>
+{% if cart %}
+
+    {% for p in cart %}
+        <li><img src="{{ p.mini }}"/><a href="{% url 'shop:detail' p.id %}">{{ p.name }}, количество: {{ p.quantity }}</a></li>
+    {% endfor %}
+
+{% else %}
+    <p>No products in your cart.</p>
+{% endif %}
+</body>
+</html>

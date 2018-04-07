@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form enctype="multipart/form-data" method="post" action="">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+<h3>Mini images:</h3>
+    {% for image in minis %}
+        <img src="{{ image }}" alt="{{ image }}"/>
+    {% endfor %}
+<h3>Images:</h3>
+    {% for image in images %}
+        <img src="{{ image }}" alt="{{ image }}"/>
+    {% endfor %}
+</body>
+</html>

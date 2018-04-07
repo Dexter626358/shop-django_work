@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% if id %}
+    <a href="{% url 'shop:photos' id %}">Добавить фотографии.</a>
+{% else %}
+    <form action="" method="post">
+    {% csrf_token %}
+    {{ cart_form }}
+    <input type="submit" value="Добавить в корзину" />
+{% endif %}
+<h3>{{ name }} </h3>
+<p>{{ category }},</p>
+<p>Цена: {{ price }},</p>
+<p>Произведено: {{ incoming_date }}</p>
+<p>Описание: {{ description }}</p>
+    {% for image in images %}
+        <img src="{{ image }}" alt="{{ image }}"/>
+    {% endfor %}
+</body>
+</html>
