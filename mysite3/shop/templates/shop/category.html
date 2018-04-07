@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1> {{ category }}:</h1>
+<ul>
+{% for p in data %}
+        <li><img src="{{ p.mini }}"/><a href="{% url 'shop:detail' p.id %}">{{ p.name }}: цена: {{ p.price }}, произведено: {{ p.incoming_date }}</a></li>
+{% endfor %}
+</ul>
+<p>
+    {% for p in pages %}
+        <a href="{% url 'shop:category'  category_id=category_id page=p %}">{{ p }}</a> |
+    {% endfor %}
+</p>
+</body>
+</html>
