@@ -1,15 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h5>You need to login to purchase goods.</h5>
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Submit" />
-</form>
-</body>
-</html>
+{% extends 'shop/base.html' %}
+
+{% block javascript %}
+<script>
+    $('#btn1').click(function () {
+        var frm = $('#FORM-1');
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('check_action'),
+            data: frm.serialize(),
+            dataType: 'json',
+            success: function (data) {
+                if (data.error) {
+                    $("#alert1").text(data.error);
+                }
+                else{
+	                $("#alert1").text(data.hello);
+	                $("#alert2").text("Перейти на главную страницу.");
+                    $('.enter_form').hide();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="enter_form">
+    <p>Надо войти, чтобы заказывать товары.</p>
+    <form method="post" id="FORM-1" check_action="{% url 'shop:ajax_login' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="button" id="btn1">Войти</button>
+    </form>
+</div>
+<h4 id="alert1"></h4>
+<a id="alert2" href="{% url 'shop:index' %}"></a>
+
+<img src="http://127.0.0.1/media/big.png" width="70%" height="70%" style="position:absolute; bottom: 20px; left: 175px;"/>
+{% endblock %}
+

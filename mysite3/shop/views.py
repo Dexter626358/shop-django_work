@@ -12,9 +12,13 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_http_methods
+
 
 nginx = "http://127.0.0.1:80"
 Page_Size = 3
+
 
 def get_mini(prod):
     mini = Mini_photo.objects.filter(product=prod)
@@ -87,27 +91,50 @@ class ProductsCartView(View): # PersonalAreaView
         return render(request, 'shop/cart.html', context)
 
 
+from django.http import JsonResponse
+
+def validate_username(request):
+    username = request.GET.get('username', None)
+    data = {
+        'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    if data['is_taken']:
+        data['error_message'] = 'Пользователь с именем "' + username + '" уже существует.'
+    return JsonResponse(data)
+
+
+# < script src = "{% static 'js/app.js' %}" > < / script >
+# < link rel = "stylesheet" type = "text/css" href = "{% static 'css/app.css' %}" >
+
+# from django.contrib.auth.forms import UserCreationForm
+# from django.views.generic.edit import CreateView
+# class RegistrationGuestView(CreateView):
+#     form_class = UserCreationForm
+
+
+
 class RegistrationGuestView(FormView):
     form_class = RegisterForm
     template_name = 'shop/register.html'
     success_url = reverse_lazy('shop:cart')
 
+    def get(self, request):
+        return render(request, self.template_name, {"form": RegisterForm()})
+
     def post(self, request): #  *args, **kwargs
-        # form = LoginFieldForm(request.POST)
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             email = form.cleaned_data['email']
-
             try:
                 User.objects.get(username=username)
             except User.DoesNotExist:
                 g = Guest.objects.create_user(username, email, password)
                 login(request, g)
             else:
-                content = 'User with name ' + username + ' already exist.'
+                content = 'User with name ' + username + ' already exist!'
                 return HttpResponseForbidden(content)
             return self.form_valid(form)
         else:
@@ -118,7 +145,7 @@ class IndexView(View):
     model = Category
 
     def get(self, request):
-        list_c = Category.objects.order_by('pk') # 'name'
+        list_c = Category.objects.order_by('name') # 'pk'
         done = []
         for cat in list_c:
             image = Category_photo.objects.filter(category=cat)
@@ -192,23 +219,35 @@ class CategoryView(View):
         return render(request, 'shop/category.html', context)
 
 
-class PhotosProductView(FormView):
-    form_class = ImageFieldForm
-    template_name = 'shop/photos.html'
+@require_http_methods(["POST"])   # POST GET
+def log_in(request):
+    form = LoginForm(request.POST)
+    if form.is_valid():
+        user = authenticate(request, username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+        if user is not None:
+            login(request, user)
+            try:
+                g = Guest.objects.get(username=user.username)
+            except Guest.DoesNotExist:
+                content = "Вы вошли " + user.username + '. Но чтобы заказывать зарегистрируйтесь как клиент.'
+                return JsonResponse({"error":content})
+        else:
+            return JsonResponse({"error":'Неверный логи или пароль.'})
+        return JsonResponse({"error": False, "hello": "Здравствуйте, " + user.username}) # , "url": reverse('shop:cart')
+    else:
+        return JsonResponse({"error":'Ошибка. Введите логин и пароль.'})# LoginForm()
 
-    def post(self, request, product_id):  # *args, **kwargs
+
+@staff_member_required(login_url='admin:login') # , redirect_field_name='shop:index'
+def add_photos(request, product_id):  # , *args, **kwargs
+    if request.method == 'POST':
         prod = get_object_or_404(Product, pk=product_id)
-        user = request.user
-        if not user.is_staff:
-            return HttpResponseForbidden('Only staff members can add images.')
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        self.success_url = reverse('shop:detail', args=(product_id,))
+        form = ImageFieldForm(request.POST)
         if form.is_valid():
             pictures = request.FILES.getlist('images')
             for f in pictures:
                 # if validate_image_file_extension(f):
-                image = Photo(photo = f, product = prod)
+                image = Photo(photo=f, product=prod)
                 image.save()
                 prod.photo_set.add(image)
             pictures = request.FILES.getlist('mini')
@@ -216,19 +255,24 @@ class PhotosProductView(FormView):
                 image = Mini_photo(mini=f, product=prod)
                 image.save()
                 prod.mini_photo_set.add(image)
-            return self.form_valid(form)
+            return HttpResponseRedirect(reverse('shop:detail', args=(product_id,)))
         else:
-            return self.form_invalid(form)
-
-
-    def get(self, request, product_id):
+            return ImageFieldForm.form_invalid(form)
+    else:
         prod = get_object_or_404(Product, pk=product_id)
-        photos = Photo.objects.filter(product = prod)
-        mini_photos = Mini_photo.objects.filter(product = prod)
+        photos = Photo.objects.filter(product=prod)
+        mini_photos = Mini_photo.objects.filter(product=prod)
         images_urls = [nginx + str(file.photo.url) for file in photos]
         mini_urls = [nginx + str(file.mini.url) for file in mini_photos]
         form = ImageFieldForm()
-        context = {"images": images_urls, "minis": mini_urls,"form": form}
+        context = {"images": images_urls, "minis": mini_urls, "form": form}
         return render(request, 'shop/photos.html', context)
+
+
+
+
+
+
+
 
 

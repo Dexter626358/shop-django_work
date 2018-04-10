@@ -1,34 +1,72 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
 <body>
+
+<div class="enter_form" style="position:relative; top: 20px; left: 50%;">
 {% if user %}
     <p>Здравствуйте, {{ user.username }}.
     {% if user.is_staff %}
-        <a href="{% url 'admin:index' %}">Войти на страницу администрирования.</a><p/>
+        <a href="{% url 'admin:index' %}">Войти на страницу администрирования.</a></p>
     {% else %}
-        <a href="{% url 'shop:cart' %}">Посмотреть корзину.</a><p/>
+        <a href="{% url 'shop:cart' %}">Посмотреть корзину.</a></p>
     {% endif %}
 {% else %}
+    <a href="{% url 'shop:register' %}">Зарегестрироваться.</a>
 
-<a href="{% url 'shop:register' %}">Зарегестрироваться.</a>
-
-<form action="" method="post">
+    <form check_action="{% url 'shop:ajax_login' %}" method="post" id="FORM-1">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Submit" />
-</form>
+    <button type="button" id="btn1">Войти</button>
+    </form>
 {% endif %}
+</div>
 
-<br><br>
-<h3> Категории товаров:</h3>
-<ul>
-{% for cat in data %}
+<div style="position:relative; top: 20px; left: 50%;">
+    <p>
+    <table width="40%">
+				<tr>
+				   <td id="alert1"></td>
+				   <td><a id="alert2" href="{% url 'shop:cart' %}"></a></td>
+				 </tr>
+    </table>
+    </p>
+</div>
+<br>
+<div style="position:absolute; top: 10%;">
+    <h4> Категории товаров:</h4>
+    <ul>
+    {% for cat in data %}
         <li><img src="{{ cat.image }}"/><a href="{% url 'shop:category' cat.id %}">{{ cat.name }}</a></li>
-{% endfor %}
-</ul>
+    {% endfor %}
+    </ul>
+</div>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+{% block javascript %}
+<script>
+    $('#btn1').click(function () {
+        var frm = $('#FORM-1');
+        $.ajax({
+            type: frm.attr('method'),
+            url: frm.attr('check_action'),
+            data: frm.serialize(),
+            dataType: 'json',
+            success: function (data) {
+                if (data.error) {
+                    $("#alert1").text(data.error);
+                }
+                else{
+	                $("#alert1").text(data.hello);
+	                $("#alert2").text("Посмотреть корзину.");
+                    $(".enter_form").hide();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
 </body>
 </html>
