@@ -1,15 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-<h5>You need to register to purchase goods.</h5>
-<form action="" method="post">
+{% extends 'shop/base.html' %}
+
+{% block javascript %}
+  <script>
+    $("#id_username").change(function () {
+      var form = $(this).closest("form");
+      $.ajax({
+        url: form.attr("data-validate-username-url"),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (data) {
+          if (data.is_taken) {
+            $("#alert1").text(data.error_message);
+            $('#btn1').hide();
+          }
+          else{
+	    $("#alert1").text();
+            $('#btn1').show();
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+<h4> Регистрация:</h4>
+  <form method="post" data-validate-username-url="{% url 'shop:validate_username' %}">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Submit" />
-</form>
-</body>
-</html>
+    <button type="submit" id="btn1">Зарегистрироваться</button>
+  </form>
+<h4 id="alert1"></h4>
+
+<img src="http://127.0.0.1/media/big.png" width="70%" height="70%" style="position:absolute; bottom: 20px; left: 175px;"/>
+{% endblock %}
+
