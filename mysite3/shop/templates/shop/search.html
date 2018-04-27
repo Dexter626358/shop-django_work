@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table width="80%">
+<tr><td>
+    <h4 style="text-align: center;">Поиск</h4>
+    </td><td style="text-align: right;">
+    <a href="{% url 'shop:index' %}">Вернуться на главную страницу.</a>
+</td></tr>
+</table>
+<form method="post">
+{% csrf_token %}
+{{ form.as_table }}
+<input type="submit" value="Найти" />
+</form>
+{% if find %}
+<ul>
+    {% for p in find %}
+    <li>
+        <p>{{ p.manufacturer }}, <a href="{% url 'shop:detail' p.id %}">{{ p }}</a></p>
+        {% if where == "description" %}
+            <p>{{ p.description }}</p>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endif %}
+</body>
+</html>

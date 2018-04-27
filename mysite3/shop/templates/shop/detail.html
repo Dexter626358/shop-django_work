@@ -3,6 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <style type="text/css">
+        div{   width: 85%;
+					border-left: 3px solid black;
+					border-top: 3px solid black;
+					margin-left: 20px; margin-right: 20px; padding-left: 20px;}
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 </head>
 <body>
 {% if id %}
@@ -12,14 +19,33 @@
     {% csrf_token %}
     {{ cart_form }}
     <input type="submit" value="Добавить в корзину" />
+    </form>
 {% endif %}
 <h3>{{ name }} </h3>
 <p>{{ category }},</p>
 <p>Цена: {{ price }},</p>
-<p>Произведено: {{ incoming_date }}</p>
+<p>Произведено: {{ production_date }}</p>
 <p>Описание: {{ description }}</p>
     {% for image in images %}
         <img src="{{ image }}" alt="{{ image }}"/>
+    {% endfor %}
+<br>
+
+    {% if add_com_form %}
+    <p>Добавить комментарий:</p>
+    <form action="" method="post">
+         {% csrf_token %}
+         {{ add_com_form }}
+        <input type="submit" value="Отправить" />
+    </form>
+    {% endif %}
+
+<br>
+    {% for com in comments %}
+    <div>
+        <p>Комментарий {{ com.name}}:</p>
+        <p>{{ com.content }}</p>
+    </div>
     {% endfor %}
 </body>
 </html>

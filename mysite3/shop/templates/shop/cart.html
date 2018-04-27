@@ -3,21 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 </head>
 <body>
+<br>
+<table width="80%">
+<tr><td>
+    <a href="{% url 'shop:orders' %}">Ваши заказы.</a>
+    </td><td style="text-align: right;">
+    <a href="{% url 'shop:index' %}">Вернуться на главную страницу.</a>
+</td></tr>
+</table>
 
-<p><a href="{% url 'shop:index' %}">Вернуться на главную страницу.</a></p>
 <br>
 <h3>Здравствуйте {{ name }}</h3>
 <p>В вашей корзине:</p>
-{% if cart %}
-
-    {% for p in cart %}
-        <li><img src="{{ p.mini }}"/><a href="{% url 'shop:detail' p.id %}">{{ p.name }}, количество: {{ p.quantity }}</a></li>
+{% if cart_full %}
+        <form method="post" id="FORM-1" check_num="{% url 'shop:ajax_order_check' %}">
+        {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        <ul>
+        <li><img src="{{ nginx }}{{ form.instance.product.mini_photo_set.first }}"/>
+            {{ form.instance.product.manufacturer }}
+            {{ form.instance.product }}
+            Количество:{{ form.quantity }}
+            {% if formset.can_delete %}
+                Удалить{{ form.DELETE }}
+            {% endif %}
+            {{ form.id }}
+        </li>
+        </ul>
     {% endfor %}
+ <button type="submit" id="btn1"><h1>Заказать</h1></button></form>
 
 {% else %}
-    <p>No products in your cart.</p>
+    <p>Нет продуктов.</p>
 {% endif %}
+
+<h4 id="alert1"></h4>
+
+{% block javascript %}
+  <script>
+    $("#FORM-1").change(function () {
+      var form = $('#FORM-1');
+      $.ajax({
+        url: form.attr("check_num"),
+        type: form.attr('method'),
+        data: form.serialize(),
+        dataType: 'json',
+        success: function (data) {
+          if (data.error) {
+            $("#alert1").text(data.error);
+            $('#btn1').hide();
+          }
+          else{
+	    $("#alert1").text('');
+            $('#btn1').show();
+          }
+        }
+      });
+    });
+  </script>
+{% endblock %}
 </body>
 </html>

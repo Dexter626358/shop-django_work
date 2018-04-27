@@ -7,9 +7,9 @@
 <body>
 <h1> {{ category }}:</h1>
 <ul>
-{% for p in data %}
-        <li><img src="{{ p.mini }}"/><a href="{% url 'shop:detail' p.id %}">{{ p.name }}: цена: {{ p.price }}, произведено: {{ p.incoming_date }}</a></li>
-{% endfor %}
+    {% for p in data %}
+        <li><img src="{{ p.mini }}"/><a href="{% url 'shop:detail' p.id %}">{{ p.name }}: цена: {{ p.price }}, произведено: {{ p.production_date }}</a></li>
+    {% endfor %}
 </ul>
 <p>
     {% for p in pages %}

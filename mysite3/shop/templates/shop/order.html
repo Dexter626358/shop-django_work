@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <p>{{ order.guest }}, вы можете оплатить заказ № {{ order }} по следующим ниже реквизитам.</p>
+    <p>{{ order.date }}</p>
+    {% for prod in order.ordered_product_set.all %}
+    <ul>
+        <li>
+            <p><img src="{{ nginx }}{{ prod.product.mini_photo_set.first }}"/>
+                {{ prod.product.manufacturer }}</p>
+            <p>{{ prod.product }}</p>
+            <p>Количество: {{ prod.quantity }}</p>
+        </li>
+    </ul>
+    {% endfor %}
+<h3>Реквизиты: </h3>
+<p>БИК: 2241343645645645</p>
+<p>ИНН: 452454634563435</p>
+</body>
+</html>

@@ -6,6 +6,10 @@
 </head>
 <body>
 
+<div style="position:relative; top: 37px; left: 1%;">
+    <a href="{% url 'shop:search' %}">Поиск</a>
+</div>
+
 <div class="enter_form" style="position:relative; top: 20px; left: 50%;">
 {% if user %}
     <p>Здравствуйте, {{ user.username }}.
@@ -59,9 +63,11 @@
                     $("#alert1").text(data.error);
                 }
                 else{
-	                $("#alert1").text(data.hello);
-	                $("#alert2").text("Посмотреть корзину.");
-                    $(".enter_form").hide();
+                    $(".enter_form").fadeOut(300)
+                                    .hide();
+	                $("#alert1").text(data.hello).fadeIn(800);
+	                $("#alert2").text("Посмотреть корзину.").fadeIn(800);
+
                 }
             }
         });

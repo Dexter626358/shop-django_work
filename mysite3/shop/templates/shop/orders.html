@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<table width="80%">
+<tr><td>
+    <p>Ваши заказы:</p>
+    </td><td style="text-align: right;">
+    <a href="{% url 'shop:index' %}">Вернуться на главную страницу.</a>
+</td></tr>
+</table>
+
+
+    {% for order in orders %}
+    <ul>
+        <li>
+            <p><a href="{% url 'shop:order' order.id %}">Заказ № {{ order.id }}</a></p>
+            {% for prod in order.ordered_product_set.all %}
+                <p><img src="{{ nginx }}{{ prod.product.mini_photo_set.first }}"/>
+                    {{ prod.product.manufacturer }}
+                    , {{ prod.product }}
+                    , Количество: {{ prod.quantity }}
+                </p>
+            {% endfor %}
+        </li>
+    </ul>
+    {% endfor %}
+</body>
+</html>
